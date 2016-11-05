@@ -1,24 +1,29 @@
 package org.devathon.contest2016;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.devathon.contest2016.commands.RobotBaseCommand;
+import org.devathon.contest2016.commands.ComputerCommand;
 
 public class DevathonPlugin extends JavaPlugin {
 
     private static DevathonPlugin instance;
 
+
     @Override
     public void onEnable() {
        instance = this;
+        registerCommands();
+
+    }
+
+    private void registerCommands() {
+        ComputerCommand command = new ComputerCommand();
+        Bukkit.getServer().getPluginCommand("bukkitcomputer").setExecutor(command);
     }
 
     @Override
     public void onDisable() {
         // put your disable code here
-    }
-
-    private void registerCommands() {
-        getCommand("robot").setExecutor(new RobotBaseCommand());
     }
 
     public static DevathonPlugin getInstance() {

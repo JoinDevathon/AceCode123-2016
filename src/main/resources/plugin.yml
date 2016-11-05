@@ -1,9 +1,10 @@
-name: Devathon Project
+name: BukkitComputer
 description: A project for the Devathon contest
 version: 1.0.0
-author: heyimblake
+author: MrToucan
 commands:
-    robot:
+    bukkitcomputer:
+      description: Main Computer Command!
 
 main: org.devathon.contest2016.DevathonPlugin
 
