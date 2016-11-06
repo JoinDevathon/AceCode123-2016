@@ -35,8 +35,8 @@ public class GeneralListener implements Listener {
 
     @EventHandler
     public void onHit(ProjectileHitEvent e) {
-        if(NPCManager.getManager().getFired().contains((Laser) e.getEntity())) {
-            NPCManager.getManager().getFired().remove((Laser) e.getEntity());
+        if(NPCManager.getManager().getFired().contains(e.getEntity())) {
+            NPCManager.getManager().getFired().remove(e.getEntity());
         }
     }
 

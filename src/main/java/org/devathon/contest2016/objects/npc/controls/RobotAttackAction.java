@@ -34,8 +34,7 @@ public class RobotAttackAction extends PathfinderGoal {
         ticks++;
         if(ticks % 5 == 0) {
             shots++;
-            System.out.println("Shots fired!");
-            Laser laser = new Laser(robot.getWorld(), EnumParticle.FLAME, new Location(Bukkit.getWorld(robot.getWorld().getWorld().getName()), robot.locX, robot.locY, robot.locZ), robot.getTarget().getLocation());
+            Laser laser = new Laser(EnumParticle.FLAME, new Location(robot.getWorld().getWorld(), robot.locX, robot.locY, robot.locZ, robot.yaw, robot.pitch), robot.getTarget().getLocation());
             laser.shoot(robot);
         }
     }

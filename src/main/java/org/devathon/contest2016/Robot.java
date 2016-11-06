@@ -7,39 +7,45 @@ import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_10_R1.CraftWorld;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.meta.FireworkMeta;
 
-import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * Created by Anthony on 11/5/2016.
  */
-public class Robot extends NPC {
+public class Robot extends EntitySlime {
+
+    static {
+        registerEntity(String.valueOf(NPCManager.getManager().getId()), 55, EntitySlime.class, Robot.class);
+    }
 
     private int updateLatency;
     private int ticks;
     private float attackDamage;
     private Player target;
+    private EntitySlime entity;
 
     public Robot(World world, String name, int updateLatency, float attackDamage, Location location) {
         super(world);
         this.updateLatency = updateLatency;
         this.attackDamage = attackDamage;
         setCustomName(name);
-        Set goalB = (Set) getPrivateField("b", PathfinderGoalSelector.class, goalSelector); goalB.clear();
-        Set goalC = (Set) getPrivateField("c", PathfinderGoalSelector.class, goalSelector); goalC.clear();
-        Set targetB = (Set) getPrivateField("b", PathfinderGoalSelector.class, targetSelector); targetB.clear();
-        Set targetC = (Set) getPrivateField("c", PathfinderGoalSelector.class, targetSelector); targetC.clear();
-        this.goalSelector.a(0, new PathfinderGoalFloat(this));
-        this.goalSelector.a(8, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8.0F));
-        this. goalSelector.a(0, new RobotAttackAction(this));
-
         spawn(this, location);
+    }
+
+
+    @Override
+    protected void r() {
+        goalSelector = new PathfinderGoalSelector(new MethodProfiler());
+        goalSelector.a(1, new PathfinderGoalFloat(this));
+        goalSelector.a(0, new RobotAttackAction(this));
+
     }
 
     public static Object getPrivateField(String fieldName, Class clazz, Object object)
@@ -87,31 +93,32 @@ public class Robot extends NPC {
         return updateLatency;
     }
 
-    @Override
     public float getAttackDamage() {
         return attackDamage;
     }
 
 
-    @Override
-    public void listen(Instructions instructions) {
+    public void listen(Entity entity, Instructions instructions) {
         ticks++;
         if(ticks % updateLatency == 0) {
-            followInstructions(instructions);
+//            followInstructions(entity, instructions);
+            this.setPositionRotation(locX, locY, locZ+25, yaw, pitch);
+            this.move(locX, locY+25, locZ);
+            this.getNavigation().a(locX+25, locY, locZ);
         }
     }
+
 
     public void rotate90() {
         setYawPitch(yaw+90, pitch);
     }
 
 
-
-    public void followInstructions(Instructions instructions) {
+    public void followInstructions(Entity entity, Instructions instructions) {
         switch(instructions) {
             case FORWARD:
                 if(Bukkit.getServer().getWorld(this.world.getWorld().getName()).getBlockAt(new Location(this.getWorld().getWorld(), locX, locY, locZ-1.0)) == Material.AIR) {
-                    this.move(locX, locY, locZ-1);
+                    entity.getBukkitEntity().teleport(new Location(this.getWorld().getWorld(), locX, locY, locZ+1, yaw, pitch));
                 }
                 break;
             case BACKWARD:
@@ -155,15 +162,42 @@ public class Robot extends NPC {
         }
     }
 
+    public static void registerEntity(String name, int id, Class<? extends EntityInsentient> nmsClass, Class<? extends EntityInsentient> customClass){
+        try {
 
-    @Override
-    public void spawn(Entity entity, Location loc) {
-        entity.setNoGravity(true);
+            List<Map<?, ?>> dataMap = new ArrayList<Map<?, ?>>();
+            for (Field f : EntityTypes.class.getDeclaredFields()){
+                if (f.getType().getSimpleName().equals(Map.class.getSimpleName())){
+                    f.setAccessible(true);
+                    dataMap.add((Map<?, ?>) f.get(null));
+                }
+            }
+
+            if (dataMap.get(2).containsKey(id)){
+                dataMap.get(0).remove(name);
+                dataMap.get(2).remove(id);
+            }
+
+            Method method = EntityTypes.class.getDeclaredMethod("a", Class.class, String.class, int.class);
+            method.setAccessible(true);
+            method.invoke(null, customClass, name, id);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void spawn(EntitySlime entity, Location loc) {
+
+        setNoGravity(true);
         entity.setPositionRotation(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
         ((CraftWorld) loc.getWorld()).getHandle().addEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM);
-        ((Slime) entity.getBukkitEntity()).teleport(loc);
-        System.out.println("Spawned");
-        System.out.println(entity.locX + "," + entity.locY + "," + loc.getZ());
+        entity.getBukkitEntity().teleport(loc);
+        entity.setAI(false);
+        RobotTimer.setSlime(entity);
+
+
     }
 
 

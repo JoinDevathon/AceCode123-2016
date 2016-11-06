@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_10_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -24,16 +25,22 @@ public class NPCManager {
     private static NPCManager manager;
     private ArrayList<Controller> controllers = new ArrayList<>();
     public HashMap<ItemStack, Instructions> controls = new HashMap<>();
-    private ArrayList<Laser> fired = new ArrayList<>();
+    private ArrayList<Arrow> fired = new ArrayList<>();
     private HashMap<UUID, ItemStack[]> contents = new HashMap<>();
+    private static int id = 0;
 
     public static NPCManager getManager() {
         return manager == null ? manager = new NPCManager() : manager;
     }
 
+    public int getId() {
+        id++;
+        return id;
+    }
+
     private NPCManager() {}
 
-    public ArrayList<Laser> getFired() {
+    public ArrayList<Arrow> getFired() {
         return fired;
     }
 
@@ -59,13 +66,13 @@ public class NPCManager {
         ItemStack up = RobotUtils.generate(Material.DIAMOND, ChatColor.GREEN + "UP " + ChatColor.GRAY + "(Right Click)");
         ItemStack down = RobotUtils.generate(Material.COAL, ChatColor.GREEN + "DOWN " + ChatColor.GRAY + "(Right Click)");
         ItemStack firework = RobotUtils.generate(Material.FIREWORK, ChatColor.GREEN + "FIREWORK " + ChatColor.GRAY + "(Right Click)");
-        controls.put(firework, Instructions.FIREWORK);
         controls.put(forward, Instructions.FORWARD);
         controls.put(backward, Instructions.BACKWARD);
         controls.put(right, Instructions.RIGHT);
         controls.put(left, Instructions.LEFT);
         controls.put(up, Instructions.UP);
         controls.put(down, Instructions.DOWN);
+        controls.put(firework, Instructions.FIREWORK);
 
     }
 
@@ -100,10 +107,8 @@ public class NPCManager {
     public void performInstruction(CraftPlayer player, ItemStack itemStack) {
         for(ItemStack item : controls.keySet()) {
             if(item.equals(itemStack)) {
-                System.out.println("In set");
                 for(Controller controller : controllers) {
                     if(controller.getPlayer().equals(player)) {
-                        System.out.println("Instruction added! " + controls.get(item).toString().toUpperCase() + "!");
                         controller.addInstruction(controls.get(item));
                         player.sendMessage(ChatColor.GREEN + "Robot performing " + ChatColor.YELLOW + "" + ChatColor.BOLD + controls.get(item).toString().toUpperCase() + ChatColor.GREEN + " Action!");
                         break;
@@ -139,7 +144,7 @@ public class NPCManager {
             }
         }
         if(control != null) {
-            control.getPlayer().sendMessage(ChatColor.RED + "Your Robot has stopped ticking :'(");
+            control.getPlayer().sendMessage(ChatColor.RED + "Your Robot has stopped ticking :(");
             control.getPlayer().getInventory().setContents(contents.get(control.getPlayer().getUniqueId()));
             return controllers.remove(control);
         }
@@ -155,37 +160,13 @@ public class NPCManager {
             }
         }
         if(control != null) {
-            control.getPlayer().sendMessage(ChatColor.RED + "Your Robot has stopped ticking :'(");
+            control.getPlayer().sendMessage(ChatColor.RED + "Your Robot has stopped ticking :(");
             control.getPlayer().getInventory().setContents(contents.get(control.getPlayer().getUniqueId()));
             return controllers.remove(control);
         }
         return false;
     }
 
-    public void registerEntity(String name, int id, Class<? extends EntityInsentient> nmsClass, Class<? extends EntityInsentient> customClass){
-        try {
-
-            List<Map<?, ?>> dataMap = new ArrayList<Map<?, ?>>();
-            for (Field f : EntityTypes.class.getDeclaredFields()){
-                if (f.getType().getSimpleName().equals(Map.class.getSimpleName())){
-                    f.setAccessible(true);
-                    dataMap.add((Map<?, ?>) f.get(null));
-                }
-            }
-
-            if (dataMap.get(2).containsKey(id)){
-                dataMap.get(0).remove(name);
-                dataMap.get(2).remove(id);
-            }
-
-            Method method = EntityTypes.class.getDeclaredMethod("a", Class.class, String.class, int.class);
-            method.setAccessible(true);
-            method.invoke(null, customClass, name, id);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
 
 }

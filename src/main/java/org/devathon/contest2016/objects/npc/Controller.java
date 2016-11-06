@@ -11,10 +11,10 @@ import java.util.LinkedList;
 public class Controller {
 
     private CraftPlayer player;
-    private NPC npc;
+    private Robot npc;
     private LinkedList<Instructions> instructions = new LinkedList<>();
 
-    public Controller(CraftPlayer player, NPC npc) {
+    public Controller(CraftPlayer player, Robot npc) {
         this.player = player;
         this.npc = npc;
     }
@@ -43,11 +43,8 @@ public class Controller {
     }
 
 
-    public NPC getNpc() {
+    public Robot getNpc() {
         return npc;
     }
 
-    public void setNpc(NPC npc) {
-        this.npc = npc;
-    }
 }
