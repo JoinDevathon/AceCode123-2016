@@ -1,6 +1,9 @@
 # Devathon Project
 This is the base layout for your Devathon Project. It includes several scripts to make running incredibly easy on Windows, Mac, and Linux.
 
+#Overview
+Receive your very own Robot by typing /robot! Right click the swords to control it and the nether star and firework for special abilities. Type /shutdownRobot when you're done with it.
+
 ## Help
 
 Help will be available for 25 hours during the contest at the following sources:
