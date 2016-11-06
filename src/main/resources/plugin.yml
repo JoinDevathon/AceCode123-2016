@@ -1,10 +1,12 @@
-name: BukkitComputer
-description: A project for the Devathon contest
+name: Robot
+description: A Robot project for the Devathon contest
 version: 1.0.0
 author: MrToucan
 commands:
-    bukkitcomputer:
-      description: Main Computer Command!
+    robot:
+      description: Main robot spawn command!
+      usage: /<Robot> <Name>
+
 
 main: org.devathon.contest2016.DevathonPlugin
 
